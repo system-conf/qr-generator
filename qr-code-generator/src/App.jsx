@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
 import QRCode from 'qrcode.react';
+import QRCodeLib from 'qrcode';
 import { saveAs } from 'file-saver';
-import ReactSlider from 'react-slider';
 import './index.css';
 
 function App() {
   const [inputValue, setInputValue] = useState('');
-  const [downloadSize, setDownloadSize] = useState(1080); // Default download size
   const [fgColor, setFgColor] = useState('#000000'); // Default foreground color
   const [bgColor, setBgColor] = useState('rgba(0, 0, 0, 0)'); // Default background color as transparent
   const qrRef = useRef(null);
@@ -15,23 +14,26 @@ function App() {
     setInputValue(e.target.value);
   };
 
-  const handleSliderChange = (value) => {
-    setDownloadSize(value);
+  const downloadPNG = () => {
+    const qrCodeCanvas = qrRef.current.querySelector('canvas');
+    qrCodeCanvas.toBlob((blob) => {
+      saveAs(blob, 'qr-code.png');
+    }, 'image/png');
   };
 
-  const downloadImage = (format) => {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+  const downloadJPEG = () => {
     const qrCodeCanvas = qrRef.current.querySelector('canvas');
+    qrCodeCanvas.toBlob((blob) => {
+      saveAs(blob, 'qr-code.jpeg');
+    }, 'image/jpeg');
+  };
 
-    canvas.width = downloadSize;
-    canvas.height = downloadSize;
-
-    context.drawImage(qrCodeCanvas, 0, 0, qrCodeCanvas.width, qrCodeCanvas.height, 0, 0, downloadSize, downloadSize);
-
-    canvas.toBlob((blob) => {
-      saveAs(blob, `qr-code.${format}`);
-    }, `image/${format}`);
+  const downloadSVG = () => {
+    QRCodeLib.toString(inputValue, { type: 'svg', color: { dark: fgColor, light: bgColor } }, (err, url) => {
+      if (err) throw err;
+      const blob = new Blob([url], { type: 'image/svg+xml' });
+      saveAs(blob, 'qr-code.svg');
+    });
   };
 
   return (
@@ -61,25 +63,13 @@ function App() {
         />
         <button onClick={() => setBgColor('rgba(0, 0, 0, 0)')}>Transparan</button>
       </div>
-      <div className="slider-container">
-        <label>Boyut: {downloadSize}px</label>
-        <ReactSlider
-          className="horizontal-slider"
-          thumbClassName="example-thumb"
-          trackClassName="example-track"
-          min={64}
-          max={1080}
-          value={downloadSize}
-          onChange={handleSliderChange}
-        />
-      </div>
       <div ref={qrRef} className="qr-box" style={{ marginTop: '20px' }}>
-        <QRCode value={inputValue} size={128} fgColor={fgColor} bgColor={bgColor} /> {/* Sabit önizleme boyutu */}
+        <QRCode value={inputValue} size={256} fgColor={fgColor} bgColor={bgColor} /> {/* Sabit önizleme boyutu */}
       </div>
       <div className="button-container">
-        <button onClick={() => downloadImage('png')} className="download-button">PNG İndir</button>
-        <button onClick={() => downloadImage('jpeg')} className="download-button">JPEG İndir</button>
-        <button onClick={() => downloadImage('svg')} className="download-button">SVG İndir</button>
+        <button onClick={downloadPNG} className="download-button">PNG İndir</button>
+        <button onClick={downloadJPEG} className="download-button">JPEG İndir</button>
+        <button onClick={downloadSVG} className="download-button">SVG İndir</button>
       </div>
     </div>
   );
