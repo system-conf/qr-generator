@@ -6,7 +6,7 @@ import './index.css';
 
 function App() {
   const [inputValue, setInputValue] = useState('');
-  const [downloadSize, setDownloadSize] = useState(128); // Default download size
+  const [downloadSize, setDownloadSize] = useState(1080); // Default download size
   const [fgColor, setFgColor] = useState('#000000'); // Default foreground color
   const [bgColor, setBgColor] = useState('rgba(0, 0, 0, 0)'); // Default background color as transparent
   const qrRef = useRef(null);
