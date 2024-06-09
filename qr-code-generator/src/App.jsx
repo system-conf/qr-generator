@@ -8,7 +8,7 @@ function App() {
   const [inputValue, setInputValue] = useState('');
   const [downloadSize, setDownloadSize] = useState(128); // Default download size
   const [fgColor, setFgColor] = useState('#000000'); // Default foreground color
-  const [bgColor, setBgColor] = useState('#ffffff'); // Default background color
+  const [bgColor, setBgColor] = useState('rgba(0, 0, 0, 0)'); // Default background color as transparent
   const qrRef = useRef(null);
 
   const handleChange = (e) => {
@@ -59,6 +59,7 @@ function App() {
           value={bgColor}
           onChange={(e) => setBgColor(e.target.value)}
         />
+        <button onClick={() => setBgColor('rgba(0, 0, 0, 0)')}>Transparan</button>
       </div>
       <div className="slider-container">
         <label>Boyut: {downloadSize}px</label>
@@ -67,7 +68,7 @@ function App() {
           thumbClassName="example-thumb"
           trackClassName="example-track"
           min={64}
-          max={512}
+          max={1080}
           value={downloadSize}
           onChange={handleSliderChange}
         />
