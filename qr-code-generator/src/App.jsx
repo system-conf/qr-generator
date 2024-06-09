@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import QRCode from 'qrcode.react';
 import QRCodeLib from 'qrcode';
 import { saveAs } from 'file-saver';
@@ -9,29 +9,54 @@ function App() {
   const [fgColor, setFgColor] = useState('#000000'); // Default foreground color
   const [bgColor, setBgColor] = useState('rgba(0, 0, 0, 0)'); // Default background color as transparent
   const qrRef = useRef(null);
+  const downloadSize = 1080; // High resolution size
 
   const handleChange = (e) => {
     setInputValue(e.target.value);
   };
 
   const downloadPNG = () => {
+    const canvas = document.createElement('canvas');
     const qrCodeCanvas = qrRef.current.querySelector('canvas');
-    qrCodeCanvas.toBlob((blob) => {
+
+    canvas.width = downloadSize;
+    canvas.height = downloadSize;
+
+    const context = canvas.getContext('2d');
+    context.fillStyle = bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    const scale = downloadSize / qrCodeCanvas.width;
+    context.drawImage(qrCodeCanvas, 0, 0, qrCodeCanvas.width * scale, qrCodeCanvas.height * scale);
+
+    canvas.toBlob((blob) => {
       saveAs(blob, 'qr-code.png');
     }, 'image/png');
   };
 
   const downloadJPEG = () => {
+    const canvas = document.createElement('canvas');
     const qrCodeCanvas = qrRef.current.querySelector('canvas');
-    qrCodeCanvas.toBlob((blob) => {
+
+    canvas.width = downloadSize;
+    canvas.height = downloadSize;
+
+    const context = canvas.getContext('2d');
+    context.fillStyle = bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    const scale = downloadSize / qrCodeCanvas.width;
+    context.drawImage(qrCodeCanvas, 0, 0, qrCodeCanvas.width * scale, qrCodeCanvas.height * scale);
+
+    canvas.toBlob((blob) => {
       saveAs(blob, 'qr-code.jpeg');
     }, 'image/jpeg');
   };
 
   const downloadSVG = () => {
-    QRCodeLib.toString(inputValue, { type: 'svg', color: { dark: fgColor, light: bgColor } }, (err, url) => {
+    QRCodeLib.toString(inputValue, { type: 'svg', color: { dark: fgColor, light: bgColor } }, (err, svgString) => {
       if (err) throw err;
-      const blob = new Blob([url], { type: 'image/svg+xml' });
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
       saveAs(blob, 'qr-code.svg');
     });
   };
